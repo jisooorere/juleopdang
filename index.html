@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>줄없당</title>
+<style>
+*{box-sizing:border-box}
+button,select,input{pointer-events:auto;cursor:pointer;touch-action:manipulation}
+button:disabled{cursor:wait;opacity:.7}
+:root{--red:#d93434;--orange:#fff0d9;--orange-border:#c58a2c;--blue:#2876c9;--green:#24965a;--line:#bfc0c2;--ink:#111}
+body{margin:0;background:#f4f4f4;color:var(--ink);font-family:Arial,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+.wrap{max-width:430px;min-height:100vh;margin:0 auto;background:#fff;padding:22px 20px 26px}
+.phone{width:100%;max-width:340px;min-height:680px;margin:0 auto;border:1.5px solid #171717;border-radius:25px;padding:19px 17px 17px;display:flex;flex-direction:column;background:#fff}
+.screen{display:none;flex:1;flex-direction:column}.screen.active{display:flex}
+.brand{font-size:19px;font-weight:800;letter-spacing:-.8px;margin:0 0 5px}
+.school{font-size:10px;color:#777;margin-bottom:18px}
+h1{font-size:18px;line-height:1.3;margin:0 0 5px;font-weight:800;letter-spacing:-.4px}
+.subtitle{font-size:10px;color:#888;margin:0 0 25px}
+.field-label{font-size:10px;color:#888;margin:0 0 7px;display:block}
+select{width:100%;height:38px;border:1px solid #999;border-radius:9px;padding:0 12px;background:white;font-size:12px;color:#111;appearance:auto}
+.tabs{display:flex;margin-top:18px;border-bottom:1px solid #aaa;height:24px}
+.tab{flex:1;border:0;background:white;font-size:10px;font-weight:600;color:#111;border-bottom:2px solid transparent;padding:0 0 8px}
+.tab.active{border-bottom:2px solid #111}
+.countbox{height:127px;border:1px solid #c8c8c8;border-radius:12px;margin-top:10px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.caption{font-size:10px;color:#888;margin-bottom:6px}
+.count{font-size:43px;line-height:1;font-weight:800;color:var(--red);letter-spacing:-1px}
+.count small{font-size:12px;margin-left:2px}
+.pill{font-size:10px;font-weight:700;color:var(--red);background:var(--orange);border-radius:20px;padding:4px 10px;margin-top:8px}
+.update{font-size:8px;color:#999;margin-top:10px}
+.notice{border:1px dashed #c7c7c7;border-radius:8px;padding:11px 10px;font-size:9px;line-height:1.6;margin-top:11px;color:#333}
+.subbtn{height:36px;border:1px solid #222;border-radius:8px;background:#fff;color:#111;font-size:11px;font-weight:700;width:100%;margin-top:9px}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.time-row label{font-size:9px;color:#777;display:block;margin-bottom:5px}
+input[type=time]{width:100%;height:37px;border:1px solid #999;border-radius:8px;padding:0 7px;font-size:11px;background:#fff}
+.result-card{border:1px solid #ccc;border-radius:10px;padding:12px;margin-top:9px;font-size:10px}
+.result-card strong{font-size:12px}
+.result-card .rank{font-size:9px;color:#777;margin-top:4px}
+.result-card.best{border:1.5px solid #111;background:#fafafa}
+.blackbtn{height:39px;border:0;border-radius:8px;background:#080808;color:white;font-size:12px;font-weight:750;width:100%;margin-top:auto}
+.report-title{margin-top:0}
+.report-label{font-size:10px;color:#888;margin:19px 0 8px}
+.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.choice{height:40px;border:1px solid #c7c7c7;border-radius:9px;background:#fff;font-size:12px;font-weight:700}
+.pill.none{color:#777;background:#eee}.choice.busy{color:var(--red)}.choice.normal{color:var(--blue)}.choice.free{color:var(--green)}
+.choice.selected.busy{background:var(--orange);border:1.5px solid var(--orange-border)}
+.choice.selected.normal{background:#edf5ff;border:1.5px solid var(--blue)}
+.choice.selected.free{background:#eaf7ef;border:1.5px solid var(--green)}
+.help{font-size:8px;line-height:1.7;color:#888;margin-top:13px}
+#menu-content{display:none;margin-top:10px;color:#222;font-size:10px}
+.menu-head{display:flex;justify-content:space-between;align-items:center;margin:5px 0 10px}
+.menu-head strong{font-size:14px;color:#111}
+.menu-head span{font-size:9px;color:#888}
+.menu-card{border:1px solid #d0d0d0;border-radius:10px;padding:11px;margin-bottom:8px}
+.menu-card .menu-name{font-size:12px;font-weight:800;margin-bottom:5px}
+.menu-card .menu-desc{font-size:9px;color:#777;line-height:1.5}
+.menu-card .menu-price{font-size:10px;font-weight:700;margin-top:7px}
+
+.countbox{height:auto;min-height:127px;padding:12px 8px;text-align:center}
+.count.sm{font-size:32px;letter-spacing:-.5px}
+.wait{font-size:10px;color:#555;margin-top:6px;font-weight:600}
+.hist{font-size:9px;color:#666;margin-top:8px;text-align:center}
+.dbnote{display:none;font-size:9px;line-height:1.5;color:#9a5b00;background:#fff6e5;border-radius:8px;padding:7px 9px;margin-top:9px}
+.mycard{border:1.5px solid #111;border-radius:10px;padding:10px 11px;margin-top:10px;font-size:10px;line-height:1.6;cursor:pointer;background:#fafafa}
+.mycard b{font-size:11px}
+.saved{display:flex;justify-content:space-between;align-items:center;font-size:10px;border:1px solid #ddd;border-radius:8px;padding:5px 9px;margin-top:6px}
+.saved button{border:0;background:none;color:#d93434;font-size:10px;padding:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="phone">
+  <section class="screen active" id="main-screen">
+   <div class="brand">줄없당</div>
+   <div class="school">충북대학교 학생식당</div>
+   <label class="field-label" for="main-restaurant">학생식당 선택</label>
+   <select id="main-restaurant">
+    <option value="한빛식당">한빛식당</option>
+    <option value="별빛식당">별빛식당</option>
+    <option value="은하수 식당">은하수 식당</option>
+   </select>
+   <div class="tabs">
+    <button class="tab active" id="waiting-tab">현재 웨이팅</button>
+    <button class="tab" id="menu-tab">오늘의 식단</button>
+   </div>
+   <div id="waiting-content">
+    <div class="countbox">
+     <div class="caption" id="count-caption">한빛식당 예상 대기 인원</div>
+     <div class="count" id="count">?</div>
+     <div class="pill" id="pill">● 확인 중</div>
+     <div class="wait" id="wait"></div>
+     <div class="update" id="update">연결 확인 중</div>
+    </div>
+    <div class="hist" id="hist"></div>
+    <div class="mycard" id="mycard" style="display:none"></div>
+    <div class="notice">앱 이용자 수가 아니라 학생들이 <b>현장에서 본 줄 길이</b>를 최근 20분 기준으로 종합한 추정치예요. 제보가 없으면 같은 요일·시간대의 <b>과거 데이터</b>로 보여드려요.</div>
+    <div class="dbnote" id="dbnote"></div>
+    <button class="subbtn" id="btn-to-recommend">공강 시간으로 식당 추천받기</button>
+    <button class="blackbtn" id="btn-to-report" style="margin-top:8px">웨이팅 현황 공유하기</button>
+   </div>
+   <div id="menu-content">
+    <div class="menu-head"><strong id="menu-restaurant-name">한빛식당</strong><span>오늘의 추천 식단</span></div>
+    <div id="menu-list"></div>
+    <div class="help">※ 과제 시연용 예시 메뉴이며 실제 판매 메뉴와 다를 수 있어요.</div>
+   </div>
+  </section>
+
+  <section class="screen" id="recommend-screen">
+   <h1>공강 시간에 맞는 식당 추천</h1>
+   <p class="subtitle">공강 요일·시간의 현황(오늘 공강 중이면 실시간, 아니면 과거 데이터)으로 한산한 식당부터 추천해요</p>
+   <label class="field-label" for="free-day">공강 요일</label>
+   <select id="free-day">
+    <option value="1">월요일</option><option value="2">화요일</option><option value="3">수요일</option><option value="4">목요일</option><option value="5">금요일</option>
+   </select>
+   <div class="time-row">
+    <div><label for="free-start">공강 시작 시간</label><input id="free-start" type="time" value="12:00"></div>
+    <div><label for="free-end">공강 종료 시간</label><input id="free-end" type="time" value="13:30"></div>
+   </div>
+   <button class="blackbtn" id="btn-recommend" style="margin-top:15px;flex:none">식당 추천받기</button>
+   <div id="recommend-results" style="margin-top:13px">
+    <div class="notice">요일과 공강 시간을 입력한 뒤 추천받기를 눌러주세요.</div>
+   </div>
+   <button class="subbtn" id="btn-save-gongang">이 공강 저장하기 (이 기기에만 저장)</button>
+   <div id="saved-list"></div>
+   <button class="subbtn" id="btn-back-main" style="margin-top:14px">메인으로 돌아가기</button>
+  </section>
+
+  <section class="screen" id="report-screen">
+   <h1 class="report-title">지금 줄은 어때요?</h1>
+   <p class="subtitle">선택한 식당의 웨이팅 현황을 공유해요 · 로그인 없이 바로 제보돼요</p>
+   <label class="field-label" for="report-restaurant">학생식당 선택</label>
+   <select id="report-restaurant">
+    <option value="한빛식당">한빛식당</option>
+    <option value="별빛식당">별빛식당</option>
+    <option value="은하수 식당">은하수 식당</option>
+   </select>
+   <div class="report-label">지금 보이는 줄 길이</div>
+   <div class="choices">
+    <button class="choice free" data-level="0">줄 없음</button>
+    <button class="choice free" data-level="1">1~5명</button>
+    <button class="choice normal" data-level="2">6~15명</button>
+    <button class="choice busy" data-level="3">16~30명</button>
+    <button class="choice busy" data-level="4">30명 이상</button>
+   </div>
+   <div class="help">지금 <b>눈으로 본</b> 줄 길이를 골라주세요. 직접 보지 않았다면 제보하지 말아주세요.<br>여러 학생의 제보를 종합해서 보여주기 때문에 한 명의 제보가 전체를 바꾸지 않아요.</div>
+   <button class="blackbtn" id="btn-submit">공유하기</button>
+   <button class="subbtn" id="btn-report-back" style="margin-top:8px">취소</button>
+  </section>
+ </div>
+</div>
+<script>
+// ===== Supabase 설정 (로그인 없이 anon 키로 접속) =====
+const SUPABASE_URL = 'https://pdwrnsmnnnwelmimbdwd.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_H8-q8N2ihlwtALKvc3gYqQ_IimbX38N';
+const apiHeaders = {'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json'};
+async function dbRequest(path, options={}) {
+ const response = await fetch(SUPABASE_URL + '/rest/v1/' + path, { ...options, headers: {...apiHeaders, ...(options.headers||{})} });
+ const raw = await response.text();
+ let data=null; try { data=raw ? JSON.parse(raw) : null; } catch {}
+ if (!response.ok) throw new Error((data && (data.message || data.hint || data.details)) || raw || ('DB 오류: '+response.status));
+ return data;
+}
+
+// ===== 집계 설정 =====
+const WINDOW_MIN = 20;      // 최근 20분 제보만 "실시간"으로 사용
+const HALF_LIFE_MIN = 8;    // 제보의 영향력이 절반으로 줄어드는 시간
+const COOLDOWN_MIN = 3;     // 같은 식당 연속 제보 제한
+const MIN_HIST_N = 2;       // 과거 데이터는 이 건수 이상일 때만 사용
+const DEMO = new URLSearchParams(location.search).get('demo') === '1';  // ?demo=1 : DB 없이 시연
+
+// 앱 이용자 수가 아니라 "현장에서 본 줄 길이"를 구간으로 받습니다.
+// wait(예상 대기 시간)은 임시 추정값이므로 팀이 직접 줄 서본 뒤 고쳐 쓰세요.
+const levels=[
+ {num:'0',    unit:'명',      status:'free',   wait:'바로 입장 가능'},
+ {num:'1~5',  unit:'명',      status:'free',   wait:'대기 약 3분 이내'},
+ {num:'6~15', unit:'명',      status:'normal', wait:'대기 약 5~10분'},
+ {num:'16~30',unit:'명',      status:'busy',   wait:'대기 약 10~20분'},
+ {num:'30',   unit:'명 이상', status:'busy',   wait:'대기 20분 이상'}
+];
+const lvText=l=>levels[l].num+levels[l].unit;
+const statusInfo={
+ busy:  {label:'● 혼잡',      color:'#d93434', bg:'#fff0d9'},
+ normal:{label:'● 보통',      color:'#2876c9', bg:'#edf5ff'},
+ free:  {label:'● 여유',      color:'#24965a', bg:'#eaf7ef'},
+ none:  {label:'● 정보 없음', color:'#777',    bg:'#eee'}
+};
+const DAYS=['일','월','화','수','목','금','토'];
+const NAMES=['한빛식당','별빛식당','은하수 식당'];
+const restaurants={}; NAMES.forEach(n=>restaurants[n]={reports:[]});
+let history={};            // "식당|요일|시" -> {avg,n}  (과거 제보 평균)
+let mode='db';             // 'db' | 'local'(DB 실패/시연 시 이 기기에만 저장)
+let dbNote='';
+const menus={
+ '한빛식당':[
+  {name:'제육볶음 정식',desc:'매콤한 제육볶음 · 쌀밥 · 미역국 · 계절 반찬',price:'6,500원'},
+  {name:'치킨마요 덮밥',desc:'바삭한 치킨과 고소한 마요 소스 · 유부장국',price:'5,500원'},
+  {name:'얼큰 순두부찌개',desc:'부드러운 순두부와 계란 · 쌀밥 · 김치',price:'6,000원'}
+ ],
+ '별빛식당':[
+  {name:'등심돈가스 정식',desc:'바삭한 등심돈가스 · 밥 · 양배추 샐러드 · 장국',price:'7,000원'},
+  {name:'참치김치볶음밥',desc:'참치와 김치를 볶은 밥 · 계란후라이',price:'5,500원'},
+  {name:'잔치국수 세트',desc:'멸치 육수 국수 · 미니 주먹밥',price:'5,000원'}
+ ],
+ '은하수 식당':[
+  {name:'소불고기 비빔밥',desc:'소불고기와 신선한 채소 · 고추장',price:'6,500원'},
+  {name:'카레라이스',desc:'부드러운 카레와 밥 · 단무지',price:'5,500원'},
+  {name:'야채쫄면 세트',desc:'매콤새콤 쫄면 · 미니 군만두',price:'5,500원'}
+ ]
+};
+let currentRestaurant='한빛식당';
+let selectedLevel=null;
+
+// ===== 안전한 localStorage =====
+function lsGet(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch{ return def; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch{} }
+
+// ===== 실시간 제보 종합: 최근일수록 가중치↑, 가중 중앙값(튀는 제보에 강함) =====
+function estimate(reports){
+ const now=Date.now();
+ const rows=reports.map(r=>{
+  const age=Math.max(0,(now-new Date(r.created_at).getTime())/60000);
+  return {level:r.level,age,w:Math.pow(0.5,age/HALF_LIFE_MIN)};
+ }).filter(r=>r.age<=WINDOW_MIN);
+ if(!rows.length) return null;
+ const total=rows.reduce((s,r)=>s+r.w,0);
+ const mean=rows.reduce((s,r)=>s+r.level*r.w,0)/total;
+ const sorted=[...rows].sort((a,b)=>a.level-b.level);
+ let acc=0,median=sorted[sorted.length-1].level;
+ for(const r of sorted){acc+=r.w; if(acc>=total/2){median=r.level;break;}}
+ return {level:median,mean,n:rows.length,age:Math.min(...rows.map(r=>r.age))};
+}
+
+// ===== 과거 데이터(요일/시간별 평균) =====
+const levelFromAvg=a=>Math.min(4,Math.max(0,Math.round(a)));
+function histRange(name,dow,startMin,endMin){
+ let sum=0,n=0;
+ for(let h=Math.floor(startMin/60); h<=Math.floor((endMin-1)/60); h++){
+  const e=history[name+'|'+dow+'|'+h];
+  if(e){ sum+=e.avg*e.n; n+=e.n; }
+ }
+ return n>=MIN_HIST_N ? {avg:sum/n,n} : null;
+}
+
+// 지금 이 식당에 대해 보여줄 값: 실시간 제보 > 과거 같은 요일·시간 평균 > 없음
+function currentView(name){
+ const live=estimate(restaurants[name].reports);
+ if(live) return {src:'live',level:live.level,mean:live.mean,n:live.n,age:live.age};
+ const d=new Date(), h=d.getHours();
+ const hi=histRange(name,d.getDay(),h*60,h*60+60);
+ if(hi) return {src:'hist',level:levelFromAvg(hi.avg),mean:hi.avg,n:hi.n};
+ return null;
+}
+const fmtAge=a=>a<1?'방금 전':Math.round(a)+'분 전';
+const confidence=n=>n>=4?'신뢰도 높음':n>=2?'신뢰도 보통':'신뢰도 낮음 · 참고용';
+
+// ===== 화면 그리기 =====
+function renderMenu(){
+ document.getElementById('menu-restaurant-name').textContent=currentRestaurant;
+ document.getElementById('menu-list').innerHTML=menus[currentRestaurant].map(m=>
+  '<div class="menu-card"><div class="menu-name">'+m.name+'</div><div class="menu-desc">'+m.desc+'</div><div class="menu-price">'+m.price+'</div></div>'
+ ).join('');
+}
+function renderRestaurant(){
+ const v=currentView(currentRestaurant), d=new Date();
+ const $=id=>document.getElementById(id);
+ $('main-restaurant').value=currentRestaurant;
+ $('report-restaurant').value=currentRestaurant;
+ const countEl=$('count'),pill=$('pill'),upd=$('update'),wait=$('wait'),hist=$('hist');
+ let key='none';
+ hist.textContent='';
+ if(!v){
+  $('count-caption').textContent=currentRestaurant+' 예상 대기 인원';
+  countEl.textContent='?'; countEl.className='count';
+  wait.textContent='';
+  upd.textContent='최근 '+WINDOW_MIN+'분 제보와 과거 기록이 없어요 · 현장에 계시면 제보해주세요';
+ } else {
+  const lv=levels[v.level]; key=lv.status;
+  countEl.innerHTML=lv.num+'<small>'+lv.unit+'</small>';
+  countEl.className='count'+((lv.num+lv.unit).length>5?' sm':'');
+  wait.textContent=lv.wait;
+  if(v.src==='live'){
+   $('count-caption').textContent=currentRestaurant+' 예상 대기 인원';
+   upd.textContent='제보 '+v.n+'건 · 마지막 '+fmtAge(v.age)+' · '+confidence(v.n);
+   const hi=histRange(currentRestaurant,d.getDay(),d.getHours()*60,d.getHours()*60+60);
+   if(hi) hist.textContent='평소 '+DAYS[d.getDay()]+'요일 '+d.getHours()+'시대는 '+lvText(levelFromAvg(hi.avg))+' 정도예요 (과거 '+hi.n+'건)';
+  } else {
+   $('count-caption').textContent='평소 '+DAYS[d.getDay()]+'요일 '+d.getHours()+'시 · '+currentRestaurant;
+   upd.textContent='최근 '+WINDOW_MIN+'분 제보 없음 · 과거 '+v.n+'건 평균 기준';
+  }
+ }
+ countEl.style.color=statusInfo[key].color==='#777'?'#999':statusInfo[key].color;
+ pill.textContent=(v&&v.src==='hist')?'● 평소엔 '+statusInfo[key].label.replace('● ',''):statusInfo[key].label;
+ pill.className='pill '+key;
+ pill.style.color=statusInfo[key].color;
+ pill.style.background=statusInfo[key].bg;
+ const note=document.getElementById('dbnote');
+ note.style.display=dbNote?'block':'none'; note.textContent=dbNote;
+ renderMyGongang();
+ renderMenu();
+}
+function changeRestaurant(name){ currentRestaurant=name; renderRestaurant(); }
+
+// ===== 공강 시간표 (로그인 없이 이 기기에 저장) =====
+const toMin=t=>{const [h,m]=t.split(':').map(Number);return h*60+m};
+const fmtMin=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+function rankFor(dow,s,e){
+ const nd=new Date(), nowMin=nd.getHours()*60+nd.getMinutes();
+ const isNow=dow===nd.getDay()&&nowMin>=s&&nowMin<e;
+ const all=NAMES.map(name=>{
+  if(isNow){ const l=estimate(restaurants[name].reports); if(l) return {name,src:'live',level:l.level,mean:l.mean,n:l.n,age:l.age}; }
+  const h=histRange(name,dow,s,e);
+  return h?{name,src:'hist',level:levelFromAvg(h.avg),mean:h.avg,n:h.n}:{name,src:null};
+ });
+ return {
+  known:all.filter(x=>x.src).sort((a,b)=>a.mean-b.mean),
+  unknown:all.filter(x=>!x.src), isNow
+ };
+}
+function renderMyGongang(){
+ const box=document.getElementById('mycard');
+ const list=lsGet('gongang',[]);
+ const nd=new Date(), nowMin=nd.getHours()*60+nd.getMinutes();
+ let pick=null,label='';
+ const today=list.filter(x=>x.day===nd.getDay()&&x.end>nowMin).sort((a,b)=>a.start-b.start)[0];
+ if(today){pick=today;label='오늘';}
+ else{
+  const tm=(nd.getDay()+1)%7;
+  const t=list.filter(x=>x.day===tm).sort((a,b)=>a.start-b.start)[0];
+  if(t){pick=t;label='내일';}
+ }
+ if(!pick){ box.style.display='none'; return; }
+ const r=rankFor(pick.day,pick.start,pick.end);
+ let rec;
+ if(r.known.length){ const b=r.known[0]; rec='추천 · <b>'+b.name+'</b> ('+lvText(b.level)+(b.src==='live'?', 실시간':', 평소 기준')+')'; }
+ else rec='아직 이 시간대 데이터가 부족해요';
+ box.style.display='block';
+ box.innerHTML='내 공강 · '+label+'('+DAYS[pick.day]+') '+fmtMin(pick.start)+'~'+fmtMin(pick.end)+'<br>'+rec;
+}
+function renderSaved(){
+ const list=lsGet('gongang',[]);
+ document.getElementById('saved-list').innerHTML=list.length
+  ? '<div class="help" style="margin-top:12px">저장된 내 공강 (메인 화면에 추천이 표시돼요)</div>'+list.map((x,i)=>
+     '<div class="saved"><span>'+DAYS[x.day]+'요일 '+fmtMin(x.start)+'~'+fmtMin(x.end)+'</span><button data-del="'+i+'">삭제</button></div>').join('')
+  : '';
+}
+function saveGongang(){
+ const day=Number(document.getElementById('free-day').value);
+ const s=toMin(document.getElementById('free-start').value||'00:00'), e=toMin(document.getElementById('free-end').value||'00:00');
+ if(e<=s){ alert('공강 종료 시간은 시작 시간보다 늦게 설정해주세요.'); return; }
+ const list=lsGet('gongang',[]);
+ if(!list.some(x=>x.day===day&&x.start===s&&x.end===e)) list.push({day,start:s,end:e});
+ lsSet('gongang',list); renderSaved(); renderMyGongang();
+}
+
+function showRecommend(){
+ document.getElementById('main-screen').classList.remove('active');
+ document.getElementById('report-screen').classList.remove('active');
+ document.getElementById('recommend-screen').classList.add('active');
+ renderSaved();
+}
+function recommend(){
+ const dow=Number(document.getElementById('free-day').value);
+ const sv=document.getElementById('free-start').value, ev=document.getElementById('free-end').value;
+ const target=document.getElementById('recommend-results');
+ const s=sv?toMin(sv):0, e=ev?toMin(ev):0, duration=e-s;
+ if(!sv||!ev||duration<=0){
+  target.innerHTML='<div class="notice">공강 종료 시간은 시작 시간보다 늦게 설정해주세요.</div>';return;
+ }
+ const r=rankFor(dow,s,e);
+ let html='<div class="notice">'+DAYS[dow]+'요일 '+sv+'~'+ev+' 공강 · '+Math.floor(duration/60)+'시간 '+(duration%60)+'분 · '+(r.isNow?'지금 시간대라 실시간 제보를 우선 반영했어요.':'같은 요일·시간대의 과거 데이터로 추정했어요.')+'</div>';
+ html+=r.known.map((x,i)=>'<div class="result-card '+(i===0?'best':'')+'"><strong>'+(i+1)+'순위 · '+x.name+'</strong><div class="rank">약 '+lvText(x.level)+' 대기 · '+(x.src==='live'?'실시간 제보 '+x.n+'건 · '+fmtAge(x.age):'평소 기준(과거 '+x.n+'건)')+(i===0?' · 가장 추천':'')+'</div></div>').join('');
+ html+=r.unknown.map(x=>'<div class="result-card"><strong>'+x.name+'</strong><div class="rank">이 시간대 데이터가 없어요 · 순위에서 제외</div></div>').join('');
+ if(!r.known.length) html+='<div class="notice">아직 데이터가 쌓이지 않아 순위를 매길 수 없어요. 제보가 쌓이면 정확해져요.</div>';
+ else{
+  // 공강 안에서 가장 한산한 시간대 안내
+  const best=r.known[0], rows=[];
+  for(let h=Math.floor(s/60); h<=Math.floor((e-1)/60); h++){
+   const x=histRange(best.name,dow,h*60,h*60+60); if(x) rows.push({h,avg:x.avg});
+  }
+  if(rows.length>=2){
+   rows.sort((a,b)=>a.avg-b.avg);
+   if(rows[rows.length-1].avg-rows[0].avg>=0.5) html+='<div class="notice">'+best.name+'은(는) 공강 중 <b>'+rows[0].h+'시대</b>가 평소 가장 한산해요 (약 '+lvText(levelFromAvg(rows[0].avg))+').</div>';
+  }
+ }
+ html+='<div class="help">※ 제보가 쌓일수록 정확해지는 추정치예요.</div>';
+ target.innerHTML=html;
+}
+
+// ===== 제보 =====
+function showReport(){
+ document.getElementById('main-screen').classList.remove('active');
+ document.getElementById('recommend-screen').classList.remove('active');
+ document.getElementById('report-screen').classList.add('active');
+ document.getElementById('report-restaurant').value=currentRestaurant;
+ selectedLevel=null; updateChoiceButtons();
+}
+function showMain(){
+ document.getElementById('report-screen').classList.remove('active');
+ document.getElementById('recommend-screen').classList.remove('active');
+ document.getElementById('main-screen').classList.add('active');
+ renderRestaurant();
+}
+function choose(l){ selectedLevel=l; updateChoiceButtons(); }
+function updateChoiceButtons(){
+ document.querySelectorAll('.choice').forEach(b=>b.classList.toggle('selected',Number(b.dataset.level)===selectedLevel));
+}
+const lastReportTime=name=>Number(lsGet('lastReport:'+name,0))||0;
+
+function loadLocalReports(){
+ const cutoff=Date.now()-WINDOW_MIN*60000;
+ const rows=lsGet('localReports',[]).filter(r=>new Date(r.created_at).getTime()>=cutoff);
+ lsSet('localReports',rows);
+ NAMES.forEach(n=>restaurants[n].reports=rows.filter(r=>r.restaurant_name===n));
+}
+function addLocalReport(name,level){
+ const row={restaurant_name:name,level,created_at:new Date().toISOString()};
+ restaurants[name].reports.push(row);                 // 화면에 바로 반영
+ if(!DEMO) lsSet('localReports',[...lsGet('localReports',[]),row]);   // 새로고침해도 유지(시연 모드는 저장 안 함)
+}
+async function submitReport(){
+ if(selectedLevel===null){ alert('지금 보이는 줄 길이를 선택해주세요.'); return; }
+ const wait=COOLDOWN_MIN*60000-(Date.now()-lastReportTime(currentRestaurant));
+ if(wait>0){ alert('같은 식당은 '+Math.ceil(wait/60000)+'분 뒤에 다시 제보할 수 있어요.'); return; }
+ const button=document.getElementById('btn-submit');
+ button.disabled=true; button.textContent='공유 중...';
+ try {
+  if(mode==='db'){
+   try {
+    await dbRequest('waiting_reports',{method:'POST',headers:{'Prefer':'return=minimal'},body:JSON.stringify({restaurant_name:currentRestaurant,level:selectedLevel})});
+    await loadReports();
+   } catch(e) {
+    // DB가 막혀도 시연은 계속: 이 기기에만 저장
+    setLocalMode(e); addLocalReport(currentRestaurant,selectedLevel);
+   }
+  } else addLocalReport(currentRestaurant,selectedLevel);
+  lsSet('lastReport:'+currentRestaurant,Date.now());
+  showMain();
+ } finally { button.disabled=false; button.textContent='공유하기'; }
+}
+
+// ===== DB 읽기 / 시연 모드 =====
+function setLocalMode(e){
+ mode='local';
+ dbNote='';   // 안내 문구는 표시하지 않음 (DB 실패 시 조용히 이 기기에만 저장)
+ if(!DEMO) loadLocalReports();
+}
+async function loadReports(){
+ const since=new Date(Date.now()-WINDOW_MIN*60000).toISOString();
+ const data=await dbRequest('waiting_reports?select=restaurant_name,level,created_at&created_at=gte.'+encodeURIComponent(since)+'&order=created_at.desc&limit=500');
+ NAMES.forEach(n=>restaurants[n].reports=[]);
+ data.forEach(row=>{ if(restaurants[row.restaurant_name]) restaurants[row.restaurant_name].reports.push(row); });
+ mode='db'; dbNote='';
+}
+async function loadHistory(){
+ try{
+  const rows=await dbRequest('waiting_history?select=restaurant_name,dow,hour,avg_level,n');
+  history={}; rows.forEach(r=>history[r.restaurant_name+'|'+r.dow+'|'+r.hour]={avg:Number(r.avg_level),n:r.n});
+ }catch(e){ console.warn('과거 데이터(waiting_history) 없음:',e.message); }
+}
+// 시연용 샘플: 점심(12시) 피크, 한빛 > 별빛 > 은하수 순으로 붐빔
+function setupDemo(){
+ const base={8:0.3,9:0.4,10:0.6,11:1.6,12:3.3,13:2.6,14:1.0,15:0.4,16:0.3,17:0.8,18:0.6,19:0.2,20:0.1}, off={'한빛식당':0.6,'별빛식당':0.0,'은하수 식당':-0.8};
+ history={};
+ NAMES.forEach(n=>{ for(let dow=0;dow<=6;dow++) for(const h of Object.keys(base).map(Number))
+  history[n+'|'+dow+'|'+h]={avg:Math.max(0,Math.min(4,base[h]+off[n]+((dow*7+h)%5-2)*0.15)),n:8}; });
+ const mk=(n,lv,min)=>({restaurant_name:n,level:lv,created_at:new Date(Date.now()-min*60000).toISOString()});
+ restaurants['한빛식당'].reports=[mk('한빛식당',4,1),mk('한빛식당',3,4),mk('한빛식당',4,9)];
+ restaurants['별빛식당'].reports=[mk('별빛식당',2,3)];
+ restaurants['은하수 식당'].reports=[];   // 제보 없음 → 과거 평균으로 표시되는 경우 시연
+ mode='local'; dbNote='';
+}
+async function refreshDatabase(){
+ if(DEMO){ renderRestaurant(); return; }
+ try { await loadReports(); await loadHistory(); }
+ catch(e) { setLocalMode(e); console.warn('Supabase 연결 오류:',e); }
+ renderRestaurant();
+}
+function tab(t){
+ const waiting=t==='waiting';
+ document.getElementById('waiting-content').style.display=waiting?'block':'none';
+ document.getElementById('menu-content').style.display=waiting?'none':'block';
+ document.getElementById('waiting-tab').classList.toggle('active',waiting);
+ document.getElementById('menu-tab').classList.toggle('active',!waiting);
+}
+
+// ===== 시작 =====
+if(DEMO) setupDemo();
+renderRestaurant();
+refreshDatabase();
+setInterval(refreshDatabase, 7000);   // 다른 학생의 제보 + "n분 전" 표시 갱신
+const on=(id,ev,fn)=>document.getElementById(id).addEventListener(ev,fn);
+on('waiting-tab','click',()=>tab('waiting'));
+on('menu-tab','click',()=>tab('menu'));
+on('main-restaurant','change',e=>changeRestaurant(e.target.value));
+on('report-restaurant','change',e=>changeRestaurant(e.target.value));
+document.querySelectorAll('.choice').forEach(b=>b.addEventListener('click',()=>choose(Number(b.dataset.level))));
+on('btn-to-recommend','click',showRecommend);
+on('btn-to-report','click',showReport);
+on('btn-recommend','click',recommend);
+on('btn-back-main','click',showMain);
+on('btn-report-back','click',showMain);
+on('btn-submit','click',submitReport);
+on('btn-save-gongang','click',saveGongang);
+on('mycard','click',showRecommend);
+on('saved-list','click',e=>{
+ const i=e.target.dataset&&e.target.dataset.del; if(i===undefined) return;
+ const list=lsGet('gongang',[]); list.splice(Number(i),1); lsSet('gongang',list); renderSaved(); renderMyGongang();
+});
+</script>
+</body>
+</html>
